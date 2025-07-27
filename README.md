@@ -76,7 +76,7 @@ cargo install --path .
 
 ### Requirements
 
-- Rust 1.70+
+- Rust 1.85+ (for 2024 edition support)
 - Python 3.8+ (for checking Python 3.8+ code)
 
 ## 🤝 Contributing
