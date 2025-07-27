@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use std::fmt;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PythonType {
@@ -28,7 +28,7 @@ impl fmt::Display for PythonType {
 
 impl FromStr for PythonType {
     type Err = ();
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "int" => Ok(PythonType::Int),
