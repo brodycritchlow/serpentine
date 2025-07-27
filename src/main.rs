@@ -17,14 +17,14 @@ fn main() {
     let filename = &args[1];
     
     if !std::path::Path::new(filename).exists() {
-        eprintln!("Error: File '{}' not found", filename);
+        eprintln!("Error: File '{filename}' not found");
         process::exit(1);
     }
     
     let source = match fs::read_to_string(filename) {
         Ok(content) => content,
         Err(e) => {
-            eprintln!("Error reading file '{}': {}", filename, e);
+            eprintln!("Error reading file '{filename}': {e}");
             process::exit(1);
         }
     };
@@ -41,7 +41,7 @@ fn main() {
     
     match checker.analyze_source(&source) {
         Ok(_) => {
-            println!("✅ Type check passed for '{}'", filename);
+            println!("✅ Type check passed for '{filename}'");
             
             if verbose {
                 let vars = checker.get_all_variables();
@@ -51,7 +51,7 @@ fn main() {
                     sorted_vars.sort_by_key(|(name, _)| *name);
                     
                     for (name, ty) in sorted_vars {
-                        println!("  {} : {:?}", name, ty);
+                        println!("  {name} : {ty:?}");
                     }
                 }
             }
@@ -59,8 +59,8 @@ fn main() {
             process::exit(0);
         }
         Err(e) => {
-            eprintln!("❌ Type check failed for '{}'", filename);
-            eprintln!("Error: {}", e);
+            eprintln!("❌ Type check failed for '{filename}'");
+            eprintln!("Error: {e}");
             
             if show_types_on_error || verbose {
                 let vars = checker.get_all_variables();
@@ -70,7 +70,7 @@ fn main() {
                     sorted_vars.sort_by_key(|(name, _)| *name);
                     
                     for (name, ty) in sorted_vars {
-                        eprintln!("  {} : {:?}", name, ty);
+                        eprintln!("  {name} : {ty:?}");
                     }
                 }
             }
@@ -81,14 +81,14 @@ fn main() {
 }
 
 fn print_usage(program_name: &str) {
-    eprintln!("Usage: {} <filename.py> [OPTIONS]", program_name);
-    eprintln!("Try '{} --help' for more information.", program_name);
+    eprintln!("Usage: {program_name} <filename.py> [OPTIONS]");
+    eprintln!("Try '{program_name} --help' for more information.");
 }
 
 fn print_help(program_name: &str) {
     println!("checkrs - A Python type checker written in Rust");
     println!();
-    println!("Usage: {} <filename.py> [OPTIONS]", program_name);
+    println!("Usage: {program_name} <filename.py> [OPTIONS]");
     println!();
     println!("Arguments:");
     println!("  <filename.py>    Python file to type check");
@@ -100,9 +100,9 @@ fn print_help(program_name: &str) {
     println!("  -h, --help            Show this help message");
     println!();
     println!("Examples:");
-    println!("  {} script.py", program_name);
-    println!("  {} script.py --verbose", program_name);
-    println!("  {} script.py --including-implicit", program_name);
+    println!("  {program_name} script.py");
+    println!("  {program_name} script.py --verbose");
+    println!("  {program_name} script.py --including-implicit");
     println!();
     println!("Exit codes:");
     println!("  0 - Type check passed");

@@ -39,7 +39,7 @@ impl FromStr for PythonType {
             "dict" => Ok(PythonType::Dict),
             "tuple" => Ok(PythonType::Tuple),
             _ => {
-                println!("Unknown type: {}", s);
+                println!("Unknown type: {s}");
                 Err(())
             }
         }

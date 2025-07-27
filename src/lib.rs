@@ -24,16 +24,14 @@ pub enum TypeCheckError {
 impl std::fmt::Display for TypeCheckError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TypeCheckError::ParseError(msg) => write!(f, "Parse error: {}", msg),
-            TypeCheckError::UnsupportedAnnotation(msg) => write!(f, "Unsupported annotation: {}", msg),
-            TypeCheckError::UnknownType(msg) => write!(f, "Unknown type: {}", msg),
+            TypeCheckError::ParseError(msg) => write!(f, "Parse error: {msg}"),
+            TypeCheckError::UnsupportedAnnotation(msg) => write!(f, "Unsupported annotation: {msg}"),
+            TypeCheckError::UnknownType(msg) => write!(f, "Unknown type: {msg}"),
             TypeCheckError::TypeMismatch { variable: _, expected, actual, literal_value } => {
                 if let Some(literal) = literal_value {
-                    write!(f, "Type \"Literal[{}]\" is not assignable to declared type \"{}\"\n  \"Literal[{}]\" is not assignable to \"{}\"", 
-                           literal, expected, literal, expected)
+                    write!(f, "Type \"Literal[{literal}]\" is not assignable to declared type \"{expected}\"\n  \"Literal[{literal}]\" is not assignable to \"{expected}\"")
                 } else {
-                    write!(f, "Type \"{}\" is not assignable to declared type \"{}\"\n  \"{}\" is not assignable to \"{}\"", 
-                           actual, expected, actual, expected)
+                    write!(f, "Type \"{actual}\" is not assignable to declared type \"{expected}\"\n  \"{actual}\" is not assignable to \"{expected}\"")
                 }
             },
         }
@@ -64,7 +62,7 @@ impl TypeChecker {
 
     pub fn analyze_source(&mut self, python_source: &str) -> TypeCheckResult<()> {
         let ast = python_parser::file_input(python_parser::make_strspan(python_source))
-            .map_err(|e| TypeCheckError::ParseError(format!("{:?}", e)))?
+            .map_err(|e| TypeCheckError::ParseError(format!("{e:?}")))?
             .1;
 
         for node in ast {
@@ -101,10 +99,10 @@ impl TypeChecker {
     ) -> TypeCheckResult<()> {
         let expected_type = self.parse_type_annotation(&annotation)?;
         
-        if let Some(value) = values.first() {
-            if let Some(actual_type) = self.infer_type_from_expression(value) {
-                if !self.is_assignable(&actual_type, &expected_type) {
-                    if let Some(Expression::Name(var_name)) = target.first() {
+        if let Some(value) = values.first()
+            && let Some(actual_type) = self.infer_type_from_expression(value)
+                && !self.is_assignable(&actual_type, &expected_type)
+                    && let Some(Expression::Name(var_name)) = target.first() {
                         let literal_value = self.get_literal_value(value);
                         return Err(TypeCheckError::TypeMismatch {
                             variable: var_name.clone(),
@@ -113,9 +111,6 @@ impl TypeChecker {
                             literal_value,
                         });
                     }
-                }
-            }
-        }
         
         for expr in target {
             if let Expression::Name(name) = expr {
@@ -148,8 +143,8 @@ impl TypeChecker {
                 _ => continue,
             };
             
-            if let Some(existing_type) = self.get_enforced_type(&name) {
-                if !self.is_assignable(&inferred_type, existing_type) {
+            if let Some(existing_type) = self.get_enforced_type(&name)
+                && !self.is_assignable(&inferred_type, existing_type) {
                     return Err(TypeCheckError::TypeMismatch {
                         variable: name.clone(),
                         expected: existing_type.clone(),
@@ -157,7 +152,6 @@ impl TypeChecker {
                         literal_value: self.get_literal_value(value),
                     });
                 }
-            }
             
             self.assigned_variables.insert(name, inferred_type.clone());
         }
@@ -179,7 +173,7 @@ impl TypeChecker {
                 PythonType::from_str(type_name)
                     .map_err(|_| TypeCheckError::UnknownType(type_name.clone()))
             }
-            _ => Err(TypeCheckError::UnsupportedAnnotation(format!("{:?}", annotation)))
+            _ => Err(TypeCheckError::UnsupportedAnnotation(format!("{annotation:?}")))
         }
     }
     
@@ -198,7 +192,7 @@ impl TypeChecker {
     
     fn get_literal_value(&self, expr: &Expression) -> Option<String> {
         match expr {
-            Expression::Int(n) => Some(format!("{}", n)),
+            Expression::Int(n) => Some(format!("{n}")),
             Expression::String(pystrings) => {
                 if !pystrings.is_empty() {
                     let content: String = pystrings.iter()
@@ -206,7 +200,7 @@ impl TypeChecker {
                             format!("{:?}", s.content).trim_matches('"').to_string()
                         })
                         .collect();
-                    Some(format!("'{}'", content))
+                    Some(format!("'{content}'"))
                 } else {
                     Some("''".to_string())
                 }
