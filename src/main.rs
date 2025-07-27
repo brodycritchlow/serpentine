@@ -1,4 +1,4 @@
-use typechecker_test::TypeChecker;
+use serpentine::TypeChecker;
 use std::{env, fs, process};
 
 fn main() {
