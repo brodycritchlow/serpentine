@@ -132,32 +132,45 @@ impl TypeChecker {
         lhs: Vec<Expression>,
         rhs_list: Vec<Vec<Expression>>,
     ) -> TypeCheckResult<()> {
-        if let Some(rhs_values) = rhs_list.last() {
-            if let Some(value) = rhs_values.first() {
-                if let Some(inferred_type) = self.infer_type_from_expression(value) {
-                    for expr in lhs {
-                        if let Expression::Name(name) = expr {
-                            if self.explicitly_typed.contains(&name) || self.including_implicit {
-                                if let Some(existing_type) = self.assigned_variables.get(&name) {
-                                    if !self.is_assignable(&inferred_type, existing_type) {
-                                        let literal_value = self.get_literal_value(value);
-                                        return Err(TypeCheckError::TypeMismatch {
-                                            variable: name.clone(),
-                                            expected: existing_type.clone(),
-                                            actual: inferred_type,
-                                            literal_value,
-                                        });
-                                    }
-                                }
-                            }
-                            self.assigned_variables.insert(name, inferred_type.clone());
-                        }
-                    }
+        let value = match rhs_list.last().and_then(|values| values.first()) {
+            Some(v) => v,
+            None => return Ok(()),
+        };
+        
+        let inferred_type = match self.infer_type_from_expression(value) {
+            Some(t) => t,
+            None => return Ok(()),
+        };
+        
+        for expr in lhs {
+            let name = match expr {
+                Expression::Name(n) => n,
+                _ => continue,
+            };
+            
+            if let Some(existing_type) = self.get_enforced_type(&name) {
+                if !self.is_assignable(&inferred_type, existing_type) {
+                    return Err(TypeCheckError::TypeMismatch {
+                        variable: name.clone(),
+                        expected: existing_type.clone(),
+                        actual: inferred_type.clone(),
+                        literal_value: self.get_literal_value(value),
+                    });
                 }
             }
+            
+            self.assigned_variables.insert(name, inferred_type.clone());
         }
         
         Ok(())
+    }
+    
+    fn get_enforced_type(&self, name: &str) -> Option<&PythonType> {
+        if self.explicitly_typed.contains(name) || self.including_implicit {
+            self.assigned_variables.get(name)
+        } else {
+            None
+        }
     }
     
     fn parse_type_annotation(&self, annotation: &Expression) -> TypeCheckResult<PythonType> {
