@@ -54,7 +54,28 @@ jobs:
         components: rustfmt, clippy
     
     - name: Check formatting
+      if: github.event_name != 'pull_request'
       run: cargo fmt -- --check
+    
+    - name: Run formatter with auto-fix (PRs only)
+      if: github.event_name == 'pull_request'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        git fetch origin ${{ github.head_ref }}
+        git checkout ${{ github.head_ref }}
+        
+        cargo fmt
+        
+        if [[ -n $(git status -s) ]]; then
+          echo "Formatter made automatic fixes"
+          git add -A
+          git commit -m "🤖 Auto-format code"
+          git push origin ${{ github.head_ref }}
+        else
+          echo "No formatting fixes needed"
+        fi
     
     - name: Run clippy
       if: github.event_name != 'pull_request'
@@ -67,11 +88,9 @@ jobs:
         
         if [[ -n $(git status -s) ]]; then
           echo "Clippy made automatic fixes"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
           git add -A
           git commit -m "🤖 Auto-fix clippy warnings"
-          git push
+          git push origin ${{ github.head_ref }}
         else
           echo "No clippy fixes needed"
           # Run clippy again to ensure everything passes
