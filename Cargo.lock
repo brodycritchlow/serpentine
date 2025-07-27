@@ -457,6 +457,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
+name = "serpentine"
+version = "0.1.0"
+dependencies = [
+ "python-parser",
+ "rustpython-parser",
+]
+
+[[package]]
 name = "siphasher"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -486,14 +494,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237"
 dependencies = [
  "crunchy",
-]
-
-[[package]]
-name = "typechecker-test"
-version = "0.1.0"
-dependencies = [
- "python-parser",
- "rustpython-parser",
 ]
 
 [[package]]
