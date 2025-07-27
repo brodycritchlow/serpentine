@@ -76,8 +76,8 @@ cargo install --path .
 
 ### Requirements
 
-- Rust 1.88+ (for 2024 edition and let-chains support)
-- Python 3.8+ (for checking Python 3.8+ code)
+- Rust 1.88+
+- Python 3.8+ 
 
 ## 🤝 Contributing
 
