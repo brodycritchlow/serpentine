@@ -14,7 +14,7 @@ By participating in this project, you agree to abide by our Code of Conduct:
 
 ### Prerequisites
 
-- Rust 1.70 or higher
+- Rust 1.88 or higher (for 2024 edition and let-chains support)
 - Git
 - Python 3.8+ (for testing against Python files)
 
