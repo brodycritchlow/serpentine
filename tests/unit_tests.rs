@@ -1,4 +1,4 @@
-use serpentine::{TypeChecker, PythonType, TypeCheckError};
+use serpentine::{PythonType, TypeCheckError, TypeChecker};
 
 #[test]
 fn test_basic_type_annotation() {
@@ -24,9 +24,11 @@ fn test_type_mismatch_error() {
     let code = "x: int = 42\nx = 'hello'";
     let result = checker.analyze_source(code);
     assert!(result.is_err());
-    
+
     match result {
-        Err(TypeCheckError::TypeMismatch { expected, actual, .. }) => {
+        Err(TypeCheckError::TypeMismatch {
+            expected, actual, ..
+        }) => {
             assert_eq!(expected, PythonType::Int);
             assert_eq!(actual, PythonType::String);
         }
@@ -68,7 +70,7 @@ fn test_implicit_type_changes_with_flag() {
 fn test_literal_value_in_error() {
     let mut checker = TypeChecker::new();
     let code = "x: int = 'hello'";
-    
+
     match checker.analyze_source(code) {
         Err(TypeCheckError::TypeMismatch { literal_value, .. }) => {
             assert_eq!(literal_value, Some("'hello'".to_string()));
@@ -103,7 +105,7 @@ g: tuple = ()
 fn test_unknown_type_error() {
     let mut checker = TypeChecker::new();
     let code = "x: UnknownType = 42";
-    
+
     match checker.analyze_source(code) {
         Err(TypeCheckError::UnknownType(type_name)) => {
             assert_eq!(type_name, "UnknownType");
@@ -125,7 +127,7 @@ fn test_multiple_assignments() {
 fn test_literal_integers() {
     let mut checker = TypeChecker::new();
     let code = "x: str = 'test'\nx = 42";
-    
+
     match checker.analyze_source(code) {
         Err(TypeCheckError::TypeMismatch { literal_value, .. }) => {
             assert_eq!(literal_value, Some("42".to_string()));
@@ -144,7 +146,7 @@ fn test_empty_source() {
 fn test_parse_error() {
     let mut checker = TypeChecker::new();
     let code = "x: = 42";
-    
+
     match checker.analyze_source(code) {
         Err(TypeCheckError::ParseError(_)) => {
             // Expected
