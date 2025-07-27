@@ -9,7 +9,7 @@
 
 > Lightning-fast Python type checker written in Rust
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/yourusername/serpentine/ci.yml?branch=main)](https://github.com/yourusername/serpentine/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/brodycritchlow/serpentine/ci.yml?branch=main)](https://github.com/brodycritchlow/serpentine/actions)
 [![Crates.io](https://img.shields.io/crates/v/serpentine.svg)](https://crates.io/crates/serpentine)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
